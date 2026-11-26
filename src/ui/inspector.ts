@@ -176,7 +176,7 @@ export class Inspector {
       look.push(
         selectField<CenterpiecePreset>('Centerpiece', f.appearance?.centerpiece ?? 'none', [
           { value: 'low-floral', label: 'Low blush florals' },
-          { value: 'tall-floral', label: 'Tall florals on gold stand' },
+          { value: 'tall-floral', label: 'Full florals with votives' },
           { value: 'candles', label: 'Candles & greenery' },
           { value: 'none', label: 'None' },
         ], (v) => this.edit('Change centerpiece', (x) => (x.appearance = { ...x.appearance, centerpiece: v }))),

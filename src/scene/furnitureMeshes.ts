@@ -60,8 +60,11 @@ function rng(seed: number) {
   return () => ((s = (s * 16807) % 2147483647) / 2147483647);
 }
 
-/** A loose bouquet of blush, white and rose blooms with greenery. */
-function bouquetParts(radius: number, centerY: number, seed: number, count = 16): Part[] {
+/**
+ * A loose bouquet of blush, white and rose blooms with greenery. `greenY` sets the height of the
+ * greenery ring (default: just under the blooms).
+ */
+function bouquetParts(radius: number, centerY: number, seed: number, count = 16, greenY?: number): Part[] {
   const rnd = rng(seed);
   const palette = [COLORS.blush, COLORS.ivory, COLORS.rose, COLORS.blush, 0xf6e3e0, COLORS.deepRose];
   const parts: Part[] = [];
@@ -75,7 +78,8 @@ function bouquetParts(radius: number, centerY: number, seed: number, count = 16)
     const a = rnd() * Math.PI * 2;
     const d = radius * (0.8 + rnd() * 0.35);
     const s = radius * (0.18 + rnd() * 0.12);
-    parts.push({ g: sphere(1), color: i % 2 ? COLORS.greenery : COLORS.eucalyptus, at: [Math.cos(a) * d, centerY - radius * 0.1 + rnd() * radius * 0.3, Math.sin(a) * d], scale: [s * 1.6, s * 0.6, s] });
+    const gy = greenY ?? centerY - radius * 0.1 + rnd() * radius * 0.3;
+    parts.push({ g: sphere(1), color: i % 2 ? COLORS.greenery : COLORS.eucalyptus, at: [Math.cos(a) * d, greenY === undefined ? gy : greenY + rnd() * 0.03, Math.sin(a) * d], scale: [s * 1.6, s * 0.6, s] });
   }
   return parts;
 }
@@ -88,10 +92,18 @@ function centerpieceGeometry(kind: string, tableRound: boolean, length: number):
       parts.push(...bouquetParts(0.17, 0.14, 11));
       for (const a of [0, 2.1, 4.2]) parts.push({ g: cyl(0.025, 0.025, 0.09, 10), color: 0xfff7ea, at: [Math.cos(a) * 0.3, 0.045, Math.sin(a) * 0.3] });
     } else if (kind === 'tall-floral') {
-      parts.push({ g: cyl(0.07, 0.11, 0.03, 20), color: COLORS.gold, at: [0, 0.015, 0] });
-      parts.push({ g: cyl(0.018, 0.018, 0.55, 10), color: COLORS.gold, at: [0, 0.3, 0] });
-      parts.push({ g: cyl(0.12, 0.04, 0.06, 20), color: COLORS.gold, at: [0, 0.6, 0] });
-      parts.push(...bouquetParts(0.26, 0.66, 23, 22));
+      // full arrangement sitting right on the table: low gold bowl, a generous mound of blooms,
+      // greenery trailing onto the cloth and a ring of votives (about 12″ tall overall)
+      parts.push({ g: cyl(0.13, 0.09, 0.06, 24), color: COLORS.gold, at: [0, 0.03, 0] });
+      parts.push(...bouquetParts(0.21, 0.13, 23, 24, 0.03));
+      for (let i = 0; i < 6; i++) {
+        const a = (i / 6) * Math.PI * 2 + 0.3;
+        parts.push({ g: sphere(1), color: [COLORS.blush, COLORS.ivory, COLORS.rose][i % 3], at: [Math.cos(a) * 0.18, 0.065, Math.sin(a) * 0.18], scale: [0.055, 0.045, 0.055] });
+      }
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
+        parts.push({ g: cyl(0.025, 0.025, 0.08, 10), color: 0xfff7ea, at: [Math.cos(a) * 0.38, 0.04, Math.sin(a) * 0.38] });
+      }
     } else if (kind === 'candles') {
       const n = tableRound ? 3 : Math.max(3, Math.round(length / 0.35));
       const span = tableRound ? 0.3 : Math.max(0.4, length - 0.6);
