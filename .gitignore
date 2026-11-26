@@ -1,0 +1,11 @@
+node_modules
+dist
+*.local
+.DS_Store
+# Never commit private venue data, real guest lists or backups
+private/
+*.wfp.json
+*-backup*.json
+
+# Venue estimates stay local; share them directly as files
+venue/
